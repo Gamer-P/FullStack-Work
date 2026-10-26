@@ -1,0 +1,21 @@
+#Hoisting in Variables -----
+console.log(a); #=> undefined
+var a = 10;
+
+var a;
+console.log(a);
+a = 10; => stays here
+
+
+
+# Hoisting in funtion -----
+hello();    #=> access works
+function hello();
+
+# Only the varible hi is hoisted
+hi();   => TypeError 
+var hi = function () {};
+
+
+TDZ:
+# start of the block(top) until code excution reaches the place where the variable is declared and intialized

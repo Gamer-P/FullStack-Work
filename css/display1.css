@@ -1,0 +1,13 @@
+#navbarsflex ul{
+    margin-left: 80px;
+    padding: 0px;
+    display: flex;
+    gap: 100px;
+    list-style: none;
+}
+#inlineflex{
+    display: inline-flex;
+}
+#inlineflexII{
+    display: inline-flex;
+}

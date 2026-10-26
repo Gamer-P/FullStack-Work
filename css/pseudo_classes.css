@@ -1,0 +1,30 @@
+#IamDiv{
+    width: 100px;
+    height: 100px;
+    background-color: red;
+}
+/* Hover: It triggers when the user hovers over the element */
+#IamDiv:hover{
+    background-color: blue;
+}
+/* Active: It triggers when the element is being activated (e.g., clicked) */
+#IamDiv:active{
+    background-color: green;
+}
+/* Focus: It triggers when the element has focus (e.g., clicked or tabbed to) */
+#IamDiv:focus{
+    background-color: yellow;
+}
+
+
+/* Input Tags */
+
+#inputTag .name:hover{
+    background-color: rgb(99, 99, 139);
+}
+#inputTag .name:active{
+    background-color: rgb(209, 255, 5);
+}
+#inputTag .email:hover{
+    background-color: rgb(255, 5, 5);
+}

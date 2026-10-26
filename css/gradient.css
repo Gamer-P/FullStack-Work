@@ -1,0 +1,25 @@
+.linear-gradient{
+    background: linear-gradient(to right, violet, indigo, blue, green, yellow, orange, red);
+    height: 200px;
+    width: 100%;
+    border-top-left-radius: 300px;
+    border-top-right-radius: 300px;
+    
+}
+.linear-gradient .chotarainbow{
+    background-color: white;
+    height: 150px;
+    width: 90%;
+    border-top-left-radius: 400px;
+    border-top-right-radius: 400px;
+    position: absolute;
+    top: 80px;
+    left: 5%;
+}
+.radial-gradient{
+    margin-top: 80px;
+    background: radial-gradient(circle, violet, indigo, blue, green, yellow, orange, red);
+    height: 100px;
+    width: 50%;
+    border-radius: 50px;
+}

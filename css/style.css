@@ -1,0 +1,17 @@
+div{
+    color: green;
+    text-align: center;
+}
+#ironman{
+    color: red;
+    text-align: center;
+}
+.para{
+    color: blue;
+    text-align: center;
+}
+.para ~ p{
+    color: blue;
+    text-align: center;
+}
+

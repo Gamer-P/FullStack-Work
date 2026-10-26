@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SignUp</title>
+  </head>
+  <body>
+    <div style="max-width: 500px; margin: 0 auto; padding: 20px">
+      <h1>Welcome to our Company</h1>
+
+      <!-- Added an ID 'signupForm' to link the buttons later -->
+      <form action="success.html" id="signupForm">
+        <label for="name">Name: </label>
+        <input type="text" name="name" id="name" />
+        <br />
+        <br />
+
+        <label for="rollno">Registration Number: </label>
+        <input
+          type="number"
+          name="rollno"
+          id="rollno"
+          pattern="[0-9]{10}"
+          maxlength="10"
+        />
+        <br />
+        <br />
+
+        <label for="email">Email Address: </label>
+        <input type="email" name="email" id="email" />
+        <br />
+        <br />
+
+        <label for="phoneno">Contact Number: </label>
+        <input
+          type="number"
+          name="rollno"
+          id="rollno"
+          pattern="[0-9]{10}"
+          maxlength="10"
+        />
+
+        <br />
+        <br />
+
+        <label for="fathername">Father Name: </label>
+        <input type="text" name="fathername" id="fathername" />
+        <br />
+        <br />
+
+        <label for="mothername">Mother Name: </label>
+        <input type="text" name="mothername" id="mothername" />
+        <br />
+        <br />
+
+        <label for="dob">Date of Birth: </label>
+        <input type="date" name="dob" id="dob" />
+
+        <br />
+        <br />
+
+        <label for="fav_color">Color: </label>
+        <input type="color" name="fav_color" id="fav_color" />
+        <br />
+        <br />
+
+        <label>Gender: </label>
+        <label for="male">M</label>
+        <input type="radio" value="male" name="gender" id="male" />
+        <label for="female">F</label>
+        <input type="radio" value="female" name="gender" id="female" />
+        <br />
+        <br />
+
+        <label for="dob">Date of Birth: </label>
+        <input type="date" name="dob" id="dob" />
+        <br />
+        <br />
+
+        <!-- BUTTON CONTAINER: This keeps them perfectly in one line -->
+        <div style="display: flex; gap: 10px">
+          <!-- Submit button automatically submits the form it lives in -->
+          <button
+            type="submit"
+            style="
+              background-color: burlywood;
+              padding: 8px 15px;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            SUBMIT
+          </button>
+
+          <!-- Reset button redirects to index.html using an onclick action -->
+          <button
+            type="button"
+            onclick="window.location.href = 'index.html'"
+            style="
+              background-color: burlywood;
+              padding: 8px 15px;
+              border: none;
+              cursor: pointer;
+            "
+          >
+            RESET
+          </button>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

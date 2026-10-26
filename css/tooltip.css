@@ -1,0 +1,9 @@
+.tool{
+    background-color: yellow;
+    width: 80px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}

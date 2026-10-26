@@ -1,0 +1,32 @@
+#superhero::after {
+  content: "Ironman 🦸‍♂️";
+  color: red;
+  font-family: Arial, sans-serif;
+  font-size: 2rem;
+  display: block;
+  margin-top: 10px;
+}
+#ironmanHistory::first-letter {
+  color: red;
+  text-transform: capitalize;
+  font-family: 'Comic Sans MS', cursive;
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 10px;
+}
+#drdoom::before {
+  color: green;
+  font-family: 'Courier New', monospace;
+  content: "Dr. Doom 🦹‍♂️";
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 10px;
+}
+#drdoomHistory::first-line {
+  color: green;
+  text-transform: capitalize;
+  font-family: 'Times New Roman', serif;
+  font-size: 1rem;
+  display: block;
+  margin-bottom: 10px;
+}

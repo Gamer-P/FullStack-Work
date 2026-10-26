@@ -1,0 +1,42 @@
+/* @keyframe queries: It provides a way to create animations. It provide states for the complete animation cycle */
+#circle{
+    height: 100px;
+    width: 100px;
+    margin: auto;
+    margin-top: 100px;
+    border-radius: 50%;
+    animation: rotation2 1s 3s infinite;
+}
+#circle #standwindmill{
+    margin-left: 35px;
+    margin-top: 50px;
+    height: 100px;
+    width: 30px;
+    background-color: grey;
+}
+@keyframes rotation{
+    0% {
+        background-color: red;
+    } 25%{
+        background-color: orange;
+    } 50%{
+        transform: rotate(180deg);
+    } 75%{
+        background-color: green;
+    } 100%{
+        transform: rotate(360deg);
+    } 
+}
+@keyframes rotation2{
+    0% {
+        background-color: red;
+    } 25%{
+        background-color: orange;
+    } 50%{
+        transform: rotate(180deg);
+    } 75%{
+        background-color: green;
+    } 100%{
+        transform: rotate(360deg);
+    } 
+}

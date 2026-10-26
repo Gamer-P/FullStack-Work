@@ -1,0 +1,14 @@
+div {
+    display: flex;
+    flex-direction: row(default);
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
+#div2 {
+    display: flex;
+    height: 100vh;
+    background-color: red;
+    justify-content: center;
+    align-items: center;
+}

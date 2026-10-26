@@ -1,0 +1,64 @@
+*{
+    margin: 0px;
+    padding: 0px;
+}
+#door1{
+    height: 600px;
+    width: 50%;
+    background-color: red;
+    position: absolute;
+    top: 0px;
+}
+#door2{
+    height: 600px;
+    width: 50%;
+    background-color: red;
+    position: absolute;
+    top: 0px;
+    left: 50%;
+}
+#birthdayPage:has(#doorHandle:active) #door1 {
+    transform: translateX(-400px);
+    transition: all 5s;
+    opacity: 1%;
+}
+
+#birthdayPage:has(#doorHandle:active) #door2 {
+    transform: translateX(400px);
+    transition: all 5s;
+    opacity: 1%;
+}
+/* #birthdayPage::after #birthdayWish h1{
+    transform: scale(1.2);
+    transition: all 5s 0.5s;
+} */
+
+#door2 #doorHandle{
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background-color: yellow;
+    border-color: black;
+    border-style: ;
+    margin-left: 20px;
+    margin-top: 130%;
+}
+#birthdayPage{
+    height: 600px;
+    width: 30%;
+    margin: auto;
+    background-color: rgb(187, 176, 176);
+    position: relative;
+    overflow: hidden;
+}
+#birthdayWish{
+    color: darkred;
+    padding-top: 50%;
+}
+#birthdayWish h1{
+    text-align: center;
+}
+#birthdayWish p{
+    font-size: 20px;
+    text-align: center;
+}

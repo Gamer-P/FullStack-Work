@@ -1,0 +1,16 @@
+#block1{
+    background-color: #d9a1a1;
+    display: inline;
+    height: 100px;
+    width: 100px;
+}
+#block2{
+    background-color: #a1d9a1;
+    display: inline-block;
+    height: 100px;
+    width: 100px;
+}
+#noneblock{
+    display: none;
+    background-color: #a1a1d9;
+}

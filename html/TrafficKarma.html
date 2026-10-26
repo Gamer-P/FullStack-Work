@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Traffic Karma — Presentation</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: rgba(18, 24, 38, 0.85);
+    --fg: #e8ecf4;
+    --muted: #6b7a94;
+    --accent-green: #00e676;
+    --accent-red: #ff1744;
+    --accent-amber: #ffab00;
+    --accent-blue: #00b0ff;
+    --border: rgba(255,255,255,0.06);
+    --card: rgba(22, 30, 48, 0.9);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  h1, h2, h3, h4 { font-family: 'Space Grotesk', sans-serif; }
+
+  /* Background ambient */
+  .bg-ambient {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-ambient::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: -20%;
+    width: 80vw;
+    height: 80vw;
+    background: radial-gradient(circle, rgba(0,230,118,0.06) 0%, transparent 60%);
+    animation: floatBlob1 20s ease-in-out infinite;
+  }
+  .bg-ambient::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    right: -10%;
+    width: 70vw;
+    height: 70vw;
+    background: radial-gradient(circle, rgba(255,23,68,0.05) 0%, transparent 60%);
+    animation: floatBlob2 25s ease-in-out infinite;
+  }
+  @keyframes floatBlob1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(10%, 15%) scale(1.1); }
+  }
+  @keyframes floatBlob2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-8%, -12%) scale(1.15); }
+  }
+
+  /* Grid pattern overlay */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+
+  /* Slide container */
+  .slides-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: translateX(80px) scale(0.97);
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+    padding: 2rem;
+  }
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    pointer-events: all;
+  }
+  .slide.exit-left {
+    opacity: 0;
+    transform: translateX(-80px) scale(0.97);
+  }
+
+  /* Cards */
+  .glass-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .glass-card:hover {
+    border-color: rgba(255,255,255,0.12);
+    transform: translateY(-2px);
+  }
+
+  /* Karma bar */
+  .karma-bar {
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent-red) 0%, var(--accent-amber) 50%, var(--accent-green) 100%);
+    position: relative;
+    overflow: visible;
+  }
+  .karma-indicator {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: white;
+    box-shadow: 0 0 12px rgba(255,255,255,0.5);
+    transition: left 0.5s ease;
+  }
+
+  /* Traffic light */
+  .traffic-light {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background: #1a1a2e;
+    border-radius: 12px;
+    border: 2px solid #2a2a4a;
+  }
+  .traffic-light .light {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  .traffic-light .light.red { background: #3a1515; }
+  .traffic-light .light.red.on { background: var(--accent-red); box-shadow: 0 0 16px var(--accent-red); }
+  .traffic-light .light.yellow { background: #3a2e15; }
+  .traffic-light .light.yellow.on { background: var(--accent-amber); box-shadow: 0 0 16px var(--accent-amber); }
+  .traffic-light .light.green { background: #153a1e; }
+  .traffic-light .light.green.on { background: var(--accent-green); box-shadow: 0 0 16px var(--accent-green); }
+
+  /* Progress bar */
+  .progress-track {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(255,255,255,0.05);
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-green), var(--accent-blue));
+    transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Navigation */
+  .nav-controls {
+    position: fixed;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(18,24,38,0.9);
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(10px);
+  }
+  .nav-btn:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    box-shadow: 0 0 20px rgba(0,230,118,0.15);
+  }
+  .nav-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .slide-counter {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 0.85rem;
+    color: var(--muted);
+    min-width: 60px;
+    text-align: center;
+  }
+
+  /* Slide number dots */
+  .slide-dots {
+    position: fixed;
+    right: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .slide-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .slide-dot.active {
+    background: var(--accent-green);
+    box-shadow: 0 0 8px rgba(0,230,118,0.4);
+    height: 20px;
+    border-radius: 3px;
+  }
+
+  /* Icon boxes */
+  .icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+
+  /* Animated road lines */
+  .road-lines {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    overflow: hidden;
+  }
+  .road-lines::before {
+    content: '';
+    position: absolute;
+    width: 200%;
+    height: 100%;
+    background: repeating-linear-gradient(90deg, var(--accent-amber) 0px, var(--accent-amber) 30px, transparent 30px, transparent 60px);
+    animation: roadMove 2s linear infinite;
+  }
+  @keyframes roadMove {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-60px); }
+  }
+
+  /* Fade-in animation for slide content */
+  .slide-content > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .slide.active .slide-content > *:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.1s; }
+  .slide.active .slide-content > *:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.2s; }
+  .slide.active .slide-content > *:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.3s; }
+  .slide.active .slide-content > *:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.4s; }
+  .slide.active .slide-content > *:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.5s; }
+  .slide.active .slide-content > *:nth-child(6) { opacity: 1; transform: translateY(0); transition-delay: 0.6s; }
+  .slide.active .slide-content > *:nth-child(7) { opacity: 1; transform: translateY(0); transition-delay: 0.7s; }
+  .slide.active .slide-content > *:nth-child(8) { opacity: 1; transform: translateY(0); transition-delay: 0.8s; }
+
+  /* Pulse animation */
+  @keyframes pulse-green {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,230,118,0.3); }
+    50% { box-shadow: 0 0 0 10px rgba(0,230,118,0); }
+  }
+  @keyframes pulse-red {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255,23,68,0.3); }
+    50% { box-shadow: 0 0 0 10px rgba(255,23,68,0); }
+  }
+  .pulse-green { animation: pulse-green 2s infinite; }
+  .pulse-red { animation: pulse-red 2s infinite; }
+
+  /* Tag styling */
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* City skyline silhouette */
+  .skyline {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 180px;
+    opacity: 0.08;
+    pointer-events: none;
+  }
+
+  /* Keyboard hint */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 8px;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    font-family: 'Space Grotesk', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+    min-width: 28px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .slide { padding: 1rem; }
+    .slide-dots { display: none; }
+    .nav-controls { bottom: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="bg-ambient"></div>
+<div class="grid-overlay"></div>
+
+<!-- Progress bar -->
+<div class="progress-track">
+  <div class="progress-fill" id="progressFill" style="width: 6.67%"></div>
+</div>
+
+<!-- Slide dots navigation -->
+<div class="slide-dots" id="slideDots"></div>
+
+<!-- Slides -->
+<div class="slides-wrapper" id="slidesWrapper">
+
+  <!-- SLIDE 1: Title -->
+  <div class="slide active" data-slide="0">
+    <div class="slide-content text-center max-w-4xl mx-auto relative">
+      <!-- City skyline SVG -->
+      <svg class="skyline" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="white" d="M0,180 L0,120 L40,120 L40,80 L60,80 L60,100 L80,100 L80,60 L100,60 L100,90 L120,90 L120,70 L140,70 L140,110 L180,110 L180,50 L200,50 L200,30 L210,30 L210,20 L220,20 L220,30 L240,30 L240,50 L260,50 L260,90 L300,90 L300,70 L320,70 L320,40 L340,40 L340,70 L360,70 L360,100 L400,100 L400,60 L420,60 L420,80 L460,80 L460,40 L480,40 L480,20 L500,20 L500,40 L520,40 L520,70 L560,70 L560,90 L600,90 L600,50 L620,50 L620,30 L640,30 L640,10 L660,10 L660,30 L680,30 L680,50 L700,50 L700,80 L740,80 L740,60 L780,60 L780,90 L820,90 L820,40 L840,40 L840,60 L860,60 L860,30 L880,30 L880,60 L900,60 L900,100 L940,100 L940,70 L960,70 L960,50 L980,50 L980,70 L1000,70 L1000,90 L1040,90 L1040,60 L1080,60 L1080,80 L1100,80 L1100,40 L1120,40 L1120,20 L1140,20 L1140,40 L1160,40 L1160,70 L1200,70 L1200,100 L1240,100 L1240,60 L1280,60 L1280,80 L1300,80 L1300,50 L1320,50 L1320,70 L1360,70 L1360,100 L1400,100 L1400,120 L1440,120 L1440,180 Z"/>
+      </svg>
+      <div class="road-lines"></div>
+      <div class="tag bg-green-500/10 text-green-400 mb-6 mx-auto w-fit">
+        <i class="fas fa-gamepad"></i> Unity 3D Game Project
+      </div>
+      <h1 class="text-6xl md:text-8xl font-bold tracking-tight mb-4" style="line-height:1.05">
+        <span class="text-green-400">Traffic</span> <span class="text-white">Karma</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-gray-400 mb-10 font-light max-w-2xl mx-auto">
+        A Real-World Traffic Behavior Simulation Game
+      </p>
+      <div class="flex flex-wrap justify-center gap-4 mb-12">
+        <div class="glass-card px-5 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+            <i class="fas fa-user text-green-400 text-sm"></i>
+          </div>
+          <span class="text-sm text-gray-300">Arjun Mehta</span>
+        </div>
+        <div class="glass-card px-5 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <i class="fas fa-user text-blue-400 text-sm"></i>
+          </div>
+          <span class="text-sm text-gray-300">Priya Sharma</span>
+        </div>
+        <div class="glass-card px-5 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <i class="fas fa-user text-amber-400 text-sm"></i>
+          </div>
+          <span class="text-sm text-gray-300">Rohan Patel</span>
+        </div>
+        <div class="glass-card px-5 py-3 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+            <i class="fas fa-user text-purple-400 text-sm"></i>
+          </div>
+          <span class="text-sm text-gray-300">Sneha Kulkarni</span>
+        </div>
+      </div>
+      <p class="text-xs text-gray-600">Press <span class="kbd">&rarr;</span> or click arrow to navigate</p>
+    </div>
+  </div>
+
+  <!-- SLIDE 2: Problem Statement -->
+  <div class="slide" data-slide="1">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-red-500/10 text-red-400"><i class="fas fa-exclamation-triangle"></i> The Problem</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3">Why Does This Matter?</h2>
+      <p class="text-gray-400 text-lg mb-10 max-w-2xl">India loses over 1.5 lakh lives every year to road accidents. Most are preventable — caused by human error and indiscipline.</p>
+      <div class="grid md:grid-cols-3 gap-5">
+        <div class="glass-card p-6">
+          <div class="icon-box bg-red-500/10 text-red-400 mb-4">
+            <i class="fas fa-ban"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Rule Breaking</h3>
+          <p class="text-sm text-gray-400">Red-light jumping, wrong-side driving, and lane cutting are normalized behaviors on Indian roads.</p>
+        </div>
+        <div class="glass-card p-6">
+          <div class="icon-box bg-amber-500/10 text-amber-400 mb-4">
+            <i class="fas fa-car-crash"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Accident Prone</h3>
+          <p class="text-sm text-gray-400">Over 4.5 lakh road crashes reported annually. One death every 4 minutes on Indian roads.</p>
+        </div>
+        <div class="glass-card p-6">
+          <div class="icon-box bg-orange-500/10 text-orange-400 mb-4">
+            <i class="fas fa-traffic-light"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-2">Congestion Crisis</h3>
+          <p class="text-sm text-gray-400">Average urban commuter spends 1.5 hours daily stuck in traffic. Billions lost in productivity.</p>
+        </div>
+      </div>
+      <div class="mt-6 glass-card p-4 flex items-center gap-4 border-l-4 border-red-500">
+        <i class="fas fa-quote-left text-red-400/40 text-xl"></i>
+        <p class="text-sm text-gray-400 italic">"Poor driving behavior isn't just a personal choice — it creates a cascading effect that impacts every road user."</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 3: Project Objective -->
+  <div class="slide" data-slide="2">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-blue-500/10 text-blue-400"><i class="fas fa-bullseye"></i> Objective</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3">What Are We Building?</h2>
+      <p class="text-gray-400 text-lg mb-10 max-w-2xl">A simulation game that makes traffic discipline intuitive — not by lecturing, but by letting players experience consequences firsthand.</p>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="glass-card p-8 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div class="icon-box bg-green-500/10 text-green-400 mb-5">
+            <i class="fas fa-graduation-cap"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Teach Through Play</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Players internalize traffic rules naturally through interactive gameplay — no textbooks, no lectures. Every rule learned is earned through experience.</p>
+        </div>
+        <div class="glass-card p-8 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full -translate-y-1/2 translate-x-1/2"></div>
+          <div class="icon-box bg-blue-500/10 text-blue-400 mb-5">
+            <i class="fas fa-link"></i>
+          </div>
+          <h3 class="text-xl font-semibold mb-3">Cause and Effect Loop</h3>
+          <p class="text-sm text-gray-400 leading-relaxed">Every action in the game world has a visible reaction. Cut a lane? Watch the ripple effect. Follow rules? Experience smooth traffic flow.</p>
+        </div>
+      </div>
+      <div class="mt-8 flex items-center gap-6 flex-wrap">
+        <div class="flex items-center gap-3 text-sm text-gray-400">
+          <i class="fas fa-check-circle text-green-400"></i> Interactive Learning
+        </div>
+        <div class="flex items-center gap-3 text-sm text-gray-400">
+          <i class="fas fa-check-circle text-green-400"></i> Behavioral Impact
+        </div>
+        <div class="flex items-center gap-3 text-sm text-gray-400">
+          <i class="fas fa-check-circle text-green-400"></i> Real-World Mapping
+        </div>
+        <div class="flex items-center gap-3 text-sm text-gray-400">
+          <i class="fas fa-check-circle text-green-400"></i> Engaging Gameplay
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 4: Game Concept -->
+  <div class="slide" data-slide="3">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-purple-500/10 text-purple-400"><i class="fas fa-lightbulb"></i> Concept</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">The Core Idea</h2>
+      <div class="grid md:grid-cols-3 gap-6 items-stretch">
+        <div class="glass-card p-7 flex flex-col">
+          <div class="text-3xl font-bold text-green-400 mb-2 font-['Space_Grotesk']">01</div>
+          <h3 class="text-lg font-semibold mb-3">Pick Up & Drive</h3>
+          <p class="text-sm text-gray-400 flex-1">Player receives a destination in a procedurally populated city. Navigate from point A to point B through realistic traffic.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-map-marker-alt text-green-400"></i> Location-based missions
+          </div>
+        </div>
+        <div class="glass-card p-7 flex flex-col relative">
+          <div class="absolute inset-0 rounded-2xl border border-green-500/20 pointer-events-none"></div>
+          <div class="text-3xl font-bold text-green-400 mb-2 font-['Space_Grotesk']">02</div>
+          <h3 class="text-lg font-semibold mb-3">Make Decisions</h3>
+          <p class="text-sm text-gray-400 flex-1">At every intersection, every lane change, and every signal — choose discipline or chaos. The world reacts to you.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-code-branch text-green-400"></i> Branching consequences
+          </div>
+        </div>
+        <div class="glass-card p-7 flex flex-col">
+          <div class="text-3xl font-bold text-green-400 mb-2 font-['Space_Grotesk']">03</div>
+          <h3 class="text-lg font-semibold mb-3">Face Results</h3>
+          <p class="text-sm text-gray-400 flex-1">Your driving patterns shape the traffic around you. Good driving creates flow. Bad driving creates gridlock and penalties.</p>
+          <div class="mt-4 flex items-center gap-2 text-xs text-gray-500">
+            <i class="fas fa-balance-scale text-green-400"></i> Cause & Effect
+          </div>
+        </div>
+      </div>
+      <div class="mt-8 glass-card p-5 flex items-center gap-5">
+        <div class="traffic-light">
+          <div class="light red"></div>
+          <div class="light yellow"></div>
+          <div class="light green on"></div>
+        </div>
+        <p class="text-sm text-gray-400">The game world is alive — NPCs follow their own rules, signals operate in real-time, and your presence influences the entire traffic ecosystem.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 5: Karma System -->
+  <div class="slide" data-slide="4">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-green-500/10 text-green-400"><i class="fas fa-yin-yang"></i> Signature Feature</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3">The Karma System</h2>
+      <p class="text-gray-400 text-lg mb-8 max-w-2xl">Every driving decision earns or costs karma points. Your karma level transforms the game world in real-time.</p>
+      <div class="glass-card p-6 mb-6">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs text-red-400 font-semibold uppercase tracking-wider">Bad Karma</span>
+          <span class="text-xs text-green-400 font-semibold uppercase tracking-wider">Good Karma</span>
+        </div>
+        <div class="karma-bar">
+          <div class="karma-indicator" id="karmaDemo" style="left: 72%"></div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="glass-card p-6 border-l-4 border-green-500">
+          <h3 class="text-lg font-semibold text-green-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-angel"></i> Good Karma Actions
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check text-green-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Stopping at red lights</p><p class="text-xs text-gray-500">Respects signal system</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check text-green-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Giving way to pedestrians</p><p class="text-xs text-gray-500">Yielding at crosswalks</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check text-green-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Maintaining lane discipline</p><p class="text-xs text-gray-500">Staying in your lane</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-check text-green-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Following speed limits</p><p class="text-xs text-gray-500">Controlled driving</p></div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 rounded-lg bg-green-500/5 border border-green-500/10">
+            <p class="text-xs text-green-400"><i class="fas fa-gift mr-1"></i> Reward: Smooth traffic, bonus time, positive score multiplier</p>
+          </div>
+        </div>
+        <div class="glass-card p-6 border-l-4 border-red-500">
+          <h3 class="text-lg font-semibold text-red-400 mb-4 flex items-center gap-2">
+            <i class="fas fa-skull-crossbones"></i> Bad Karma Actions
+          </h3>
+          <div class="space-y-3">
+            <div class="flex items-start gap-3">
+              <i class="fas fa-times text-red-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Running red lights</p><p class="text-xs text-gray-500">Violating signals</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-times text-red-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Cutting lanes abruptly</p><p class="text-xs text-gray-500">Dangerous maneuvers</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-times text-red-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Honking unnecessarily</p><p class="text-xs text-gray-500">Noise pollution</p></div>
+            </div>
+            <div class="flex items-start gap-3">
+              <i class="fas fa-times text-red-400 mt-1 text-sm"></i>
+              <div><p class="text-sm font-medium">Overspeeding</p><p class="text-xs text-gray-500">Reckless behavior</p></div>
+            </div>
+          </div>
+          <div class="mt-4 p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+            <p class="text-xs text-red-400"><i class="fas fa-bolt mr-1"></i> Penalty: Traffic jams, police chase, time deduction, negative score</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 6: Gameplay Mechanics -->
+  <div class="slide" data-slide="5">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-amber-500/10 text-amber-400"><i class="fas fa-cogs"></i> Mechanics</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">Gameplay Mechanics</h2>
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="glass-card p-6 text-center">
+          <div class="icon-box bg-blue-500/10 text-blue-400 mx-auto mb-4">
+            <i class="fas fa-keyboard"></i>
+          </div>
+          <h3 class="text-sm font-semibold mb-2">Car Controls</h3>
+          <div class="space-y-2">
+            <div class="flex items-center justify-center gap-2"><span class="kbd">W</span><span class="text-xs text-gray-500">Accelerate</span></div>
+            <div class="flex items-center justify-center gap-2"><span class="kbd">S</span><span class="text-xs text-gray-500">Brake</span></div>
+            <div class="flex items-center justify-center gap-2"><span class="kbd">A</span><span class="kbd">D</span><span class="text-xs text-gray-500">Steer</span></div>
+          </div>
+        </div>
+        <div class="glass-card p-6 text-center">
+          <div class="icon-box bg-amber-500/10 text-amber-400 mx-auto mb-4">
+            <i class="fas fa-traffic-light"></i>
+          </div>
+          <h3 class="text-sm font-semibold mb-2">Traffic Signals</h3>
+          <p class="text-xs text-gray-400 mb-3">Real-time signal cycling with red, yellow, and green phases synced across intersections.</p>
+          <div class="traffic-light mx-auto" id="mechTrafficLight">
+            <div class="light red on"></div>
+            <div class="light yellow"></div>
+            <div class="light green"></div>
+          </div>
+        </div>
+        <div class="glass-card p-6 text-center">
+          <div class="icon-box bg-purple-500/10 text-purple-400 mx-auto mb-4">
+            <i class="fas fa-cars"></i>
+          </div>
+          <h3 class="text-sm font-semibold mb-2">NPC Vehicles</h3>
+          <p class="text-xs text-gray-400">AI-driven traffic with varied vehicle types — cars, bikes, trucks, and auto-rickshaws following waypoint paths.</p>
+        </div>
+        <div class="glass-card p-6 text-center">
+          <div class="icon-box bg-green-500/10 text-green-400 mx-auto mb-4">
+            <i class="fas fa-stopwatch"></i>
+          </div>
+          <h3 class="text-sm font-semibold mb-2">Timed Missions</h3>
+          <p class="text-xs text-gray-400">Reach your destination within the time limit. Karma affects bonus time — good driving earns extra seconds.</p>
+        </div>
+      </div>
+      <div class="mt-6 glass-card p-5 flex items-center gap-6">
+        <div class="flex items-center gap-3">
+          <i class="fas fa-info-circle text-blue-400"></i>
+          <p class="text-sm text-gray-400">Physics-based movement using Unity Rigidbody — realistic acceleration, braking, and collision response.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 7: Game Modes -->
+  <div class="slide" data-slide="6">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-indigo-500/10 text-indigo-400"><i class="fas fa-layer-group"></i> Modes</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">Game Modes</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="glass-card p-8 relative overflow-hidden group">
+          <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+          <div class="relative">
+            <div class="flex items-center gap-3 mb-5">
+              <div class="icon-box bg-blue-500/10 text-blue-400">
+                <i class="fas fa-car"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold">Normal Mode</h3>
+                <p class="text-xs text-gray-500">Daily Driving Simulation</p>
+              </div>
+            </div>
+            <p class="text-sm text-gray-400 mb-6 leading-relaxed">Experience a typical day of city driving. Navigate through traffic, follow signals, and maintain discipline to build good karma over time.</p>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-clock text-blue-400 w-4"></i> Relaxed time limits</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-route text-blue-400 w-4"></i> Multiple route options</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-chart-line text-blue-400 w-4"></i> Progressive karma tracking</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-trophy text-blue-400 w-4"></i> Score based on discipline</div>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-8 relative overflow-hidden group">
+          <div class="absolute -bottom-8 -right-8 w-40 h-40 bg-red-500/5 rounded-full group-hover:scale-150 transition-transform duration-700"></div>
+          <div class="relative">
+            <div class="flex items-center gap-3 mb-5">
+              <div class="icon-box bg-red-500/10 text-red-400 pulse-red">
+                <i class="fas fa-ambulance"></i>
+              </div>
+              <div>
+                <h3 class="text-xl font-semibold">Emergency Mode</h3>
+                <p class="text-xs text-gray-500">Race Against Time</p>
+              </div>
+            </div>
+            <p class="text-sm text-gray-400 mb-6 leading-relaxed">A medical emergency! Reach the hospital as fast as possible. But here's the twist — breaking rules still costs karma, even in emergencies.</p>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-hourglass-half text-red-400 w-4"></i> Strict time pressure</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-heartbeat text-red-400 w-4"></i> Life at stake narrative</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-balance-scale-left text-red-400 w-4"></i> Speed vs. discipline dilemma</div>
+              <div class="flex items-center gap-2 text-xs text-gray-400"><i class="fas fa-star text-red-400 w-4"></i> Bonus for perfect balance</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 8: Real-World Connection -->
+  <div class="slide" data-slide="7">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-teal-500/10 text-teal-400"><i class="fas fa-globe-asia"></i> Impact</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3">Real-World Connection</h2>
+      <p class="text-gray-400 text-lg mb-10 max-w-2xl">Bridge the gap between virtual driving and real-road responsibility.</p>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-7 text-center">
+          <div class="w-16 h-16 rounded-full bg-teal-500/10 flex items-center justify-center mx-auto mb-5">
+            <i class="fas fa-book-open text-teal-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Rules Awareness</h3>
+          <p class="text-sm text-gray-400">Players learn traffic signs, right-of-way rules, and signal protocols organically through gameplay repetition.</p>
+        </div>
+        <div class="glass-card p-7 text-center">
+          <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mx-auto mb-5">
+            <i class="fas fa-hands-helping text-green-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Social Responsibility</h3>
+          <p class="text-sm text-gray-400">Understanding that individual driving choices ripple through the entire traffic system — building empathy for fellow road users.</p>
+        </div>
+        <div class="glass-card p-7 text-center">
+          <div class="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center mx-auto mb-5">
+            <i class="fas fa-brain text-blue-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Behavioral Learning</h3>
+          <p class="text-sm text-gray-400">Muscle memory and pattern recognition built in-game transfer to real-world driving habits — especially effective for young drivers.</p>
+        </div>
+      </div>
+      <div class="mt-8 glass-card p-5 flex items-center gap-4 border border-teal-500/10">
+        <div class="w-10 h-10 rounded-lg bg-teal-500/10 flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-chart-bar text-teal-400"></i>
+        </div>
+        <p class="text-sm text-gray-400">Studies show simulation-based learning improves traffic rule retention by <span class="text-teal-400 font-semibold">40%</span> compared to traditional methods.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 9: Technical Implementation -->
+  <div class="slide" data-slide="8">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-cyan-500/10 text-cyan-400"><i class="fas fa-code"></i> Technical</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">Technical Implementation</h2>
+      <div class="grid md:grid-cols-3 gap-6 mb-8">
+        <div class="glass-card p-7">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-xl bg-gray-800 flex items-center justify-center">
+              <i class="fas fa-cube text-white text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold">Unity 3D</h3>
+              <p class="text-xs text-gray-500">Game Engine</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-400">Full 3D environment with scene management, prefab system, and Unity's rendering pipeline for immersive visuals.</p>
+        </div>
+        <div class="glass-card p-7">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-xl bg-purple-900/50 flex items-center justify-center">
+              <span class="text-purple-300 font-bold text-sm font-['Space_Grotesk']">C#</span>
+            </div>
+            <div>
+              <h3 class="font-semibold">C# Scripts</h3>
+              <p class="text-xs text-gray-500">Programming</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-400">Modular script architecture with separate controllers for player, NPC, traffic system, karma logic, and UI management.</p>
+        </div>
+        <div class="glass-card p-7">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="w-12 h-12 rounded-xl bg-green-900/50 flex items-center justify-center">
+              <i class="fas fa-atom text-green-400 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold">Rigidbody Physics</h3>
+              <p class="text-xs text-gray-500">Simulation</p>
+            </div>
+          </div>
+          <p class="text-sm text-gray-400">Realistic vehicle dynamics using Unity's physics engine — mass, friction, velocity, and collision detection.</p>
+        </div>
+      </div>
+      <div class="glass-card p-6">
+        <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
+          <i class="fas fa-route text-cyan-400"></i> NPC AI — Waypoint System
+        </h3>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-map-pin text-cyan-400 text-xs"></i></div>
+            <span class="text-xs text-gray-400">Waypoint placement</span>
+          </div>
+          <i class="fas fa-arrow-right text-gray-600 text-xs"></i>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-directions text-cyan-400 text-xs"></i></div>
+            <span class="text-xs text-gray-400">Path following</span>
+          </div>
+          <i class="fas fa-arrow-right text-gray-600 text-xs"></i>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-pause-circle text-cyan-400 text-xs"></i></div>
+            <span class="text-xs text-gray-400">Signal obedience</span>
+          </div>
+          <i class="fas fa-arrow-right text-gray-600 text-xs"></i>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-cyan-500/10 flex items-center justify-center"><i class="fas fa-random text-cyan-400 text-xs"></i></div>
+            <span class="text-xs text-gray-400">Lane variation</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 10: System Design -->
+  <div class="slide" data-slide="9">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-violet-500/10 text-violet-400"><i class="fas fa-project-diagram"></i> Architecture</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">System Design</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Karma System -->
+        <div class="glass-card p-6">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="icon-box bg-green-500/10 text-green-400">
+              <i class="fas fa-yin-yang"></i>
+            </div>
+            <h3 class="font-semibold">Karma System</h3>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Event Trigger</p>
+              <p class="text-gray-300">Player action detected</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Classification</p>
+              <p class="text-gray-300">Good / Bad karma tag</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Score Update</p>
+              <p class="text-gray-300">+/- karma points applied</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-green-500/5 border border-green-500/10">
+              <p class="text-gray-500 mb-1">World Reaction</p>
+              <p class="text-green-400">Traffic state changes</p>
+            </div>
+          </div>
+        </div>
+        <!-- Traffic Light System -->
+        <div class="glass-card p-6">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="icon-box bg-amber-500/10 text-amber-400">
+              <i class="fas fa-traffic-light"></i>
+            </div>
+            <h3 class="font-semibold">Traffic Light System</h3>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Timer Controller</p>
+              <p class="text-gray-300">Cycles through R-Y-G</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">State Broadcast</p>
+              <p class="text-gray-300">Sends signal to all NPCs</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">NPC Response</p>
+              <p class="text-gray-300">Stop / Go / Slow down</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-amber-500/5 border border-amber-500/10">
+              <p class="text-gray-500 mb-1">Player Check</p>
+              <p class="text-amber-400">Violation detection</p>
+            </div>
+          </div>
+        </div>
+        <!-- NPC Movement -->
+        <div class="glass-card p-6">
+          <div class="flex items-center gap-3 mb-5">
+            <div class="icon-box bg-blue-500/10 text-blue-400">
+              <i class="fas fa-robot"></i>
+            </div>
+            <h3 class="font-semibold">NPC Movement</h3>
+          </div>
+          <div class="space-y-3 text-xs">
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Waypoint Loader</p>
+              <p class="text-gray-300">Assigns path to NPC</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Movement Controller</p>
+              <p class="text-gray-300">Steers toward next point</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-gray-500 mb-1">Obstacle Avoidance</p>
+              <p class="text-gray-300">Raycast-based detection</p>
+            </div>
+            <div class="flex justify-center"><i class="fas fa-arrow-down text-gray-600"></i></div>
+            <div class="p-3 rounded-lg bg-blue-500/5 border border-blue-500/10">
+              <p class="text-gray-500 mb-1">Signal Integration</p>
+              <p class="text-blue-400">Stops at red lights</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 11: User Interface -->
+  <div class="slide" data-slide="10">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-pink-500/10 text-pink-400"><i class="fas fa-desktop"></i> UI/UX</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-3">User Interface</h2>
+      <p class="text-gray-400 text-lg mb-10 max-w-2xl">Minimal, non-intrusive HUD that keeps the player immersed while providing essential information at a glance.</p>
+      <div class="grid md:grid-cols-2 gap-8">
+        <!-- HUD Mockup -->
+        <div class="glass-card p-6 relative overflow-hidden" style="background: rgba(10,14,23,0.95)">
+          <div class="text-xs text-gray-500 mb-4 uppercase tracking-wider font-semibold">In-Game HUD Preview</div>
+          <!-- Fake game screen -->
+          <div class="rounded-xl overflow-hidden border border-white/5" style="background: linear-gradient(135deg, #0d1520, #131d2e)">
+            <div class="p-4 relative" style="height: 240px">
+              <!-- HUD elements -->
+              <!-- Top left: Karma meter -->
+              <div class="absolute top-4 left-4">
+                <div class="text-[10px] text-gray-500 mb-1 uppercase tracking-wider">Karma</div>
+                <div class="w-32 h-2 rounded-full bg-gray-800 overflow-hidden">
+                  <div class="h-full rounded-full bg-gradient-to-r from-red-500 via-amber-500 to-green-500" style="width: 72%"></div>
+                </div>
+                <div class="text-[10px] text-green-400 mt-1">+72 Good</div>
+              </div>
+              <!-- Top right: Timer -->
+              <div class="absolute top-4 right-4 text-right">
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Time</div>
+                <div class="text-2xl font-bold font-['Space_Grotesk'] text-white">02:34</div>
+              </div>
+              <!-- Bottom center: Speed -->
+              <div class="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Speed</div>
+                <div class="text-xl font-bold font-['Space_Grotesk'] text-white">45 <span class="text-xs text-gray-500">km/h</span></div>
+              </div>
+              <!-- Bottom left: Mission -->
+              <div class="absolute bottom-4 left-4">
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Mission</div>
+                <div class="text-xs text-gray-300">Reach Hospital</div>
+                <div class="w-24 h-1 rounded-full bg-gray-800 mt-1">
+                  <div class="h-full rounded-full bg-blue-500" style="width: 60%"></div>
+                </div>
+              </div>
+              <!-- Decorative road -->
+              <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-gray-900/80 to-transparent"></div>
+              <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-amber-400 shadow-lg shadow-amber-400/50"></div>
+            </div>
+          </div>
+        </div>
+        <!-- UI Components -->
+        <div class="space-y-5">
+          <div class="glass-card p-5 flex items-start gap-4">
+            <div class="icon-box bg-green-500/10 text-green-400 flex-shrink-0">
+              <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">Karma Meter</h3>
+              <p class="text-sm text-gray-400">Gradient bar from red to green. Updates in real-time with smooth transitions. Clear visual indicator of current standing.</p>
+            </div>
+          </div>
+          <div class="glass-card p-5 flex items-start gap-4">
+            <div class="icon-box bg-blue-500/10 text-blue-400 flex-shrink-0">
+              <i class="fas fa-clock"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">Timer Display</h3>
+              <p class="text-sm text-gray-400">Prominent countdown in top-right corner. Color shifts from white to amber to red as time runs low.</p>
+            </div>
+          </div>
+          <div class="glass-card p-5 flex items-start gap-4">
+            <div class="icon-box bg-amber-500/10 text-amber-400 flex-shrink-0">
+              <i class="fas fa-compress-alt"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold mb-1">Minimal HUD Philosophy</h3>
+              <p class="text-sm text-gray-400">No clutter. No overwhelming stats. Only what matters right now — karma, time, speed, and mission progress.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 12: Challenges -->
+  <div class="slide" data-slide="11">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-orange-500/10 text-orange-400"><i class="fas fa-mountain"></i> Challenges</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">Challenges Faced</h2>
+      <div class="space-y-5">
+        <div class="glass-card p-6 flex items-start gap-5 group">
+          <div class="w-12 h-12 rounded-xl bg-orange-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-orange-500/20 transition-colors">
+            <i class="fas fa-cars text-orange-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">Managing NPC Traffic</h3>
+              <span class="tag bg-red-500/10 text-red-400 text-[10px]">High Complexity</span>
+            </div>
+            <p class="text-sm text-gray-400 mb-3">Coordinating dozens of NPC vehicles across multiple intersections without deadlocks or unrealistic behavior required extensive testing.</p>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-xs text-gray-500"><i class="fas fa-lightbulb text-orange-400 mr-2"></i>Solution: Prioritized waypoint queuing with dynamic spacing to prevent pile-ups.</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-6 flex items-start gap-5 group">
+          <div class="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-amber-500/20 transition-colors">
+            <i class="fas fa-balance-scale text-amber-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">Balancing the Karma System</h3>
+              <span class="tag bg-amber-500/10 text-amber-400 text-[10px]">Design Challenge</span>
+            </div>
+            <p class="text-sm text-gray-400 mb-3">Too strict and the game feels punishing. Too lenient and the karma mechanic becomes meaningless. Finding the sweet spot took multiple iterations.</p>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-xs text-gray-500"><i class="fas fa-lightbulb text-amber-400 mr-2"></i>Solution: Weighted point system with gradual consequences instead of instant extremes.</p>
+            </div>
+          </div>
+        </div>
+        <div class="glass-card p-6 flex items-start gap-5 group">
+          <div class="w-12 h-12 rounded-xl bg-red-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-red-500/20 transition-colors">
+            <i class="fas fa-tachometer-alt text-red-400"></i>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="font-semibold">Performance Optimization</h3>
+              <span class="tag bg-red-500/10 text-red-400 text-[10px]">Critical</span>
+            </div>
+            <p class="text-sm text-gray-400 mb-3">Running physics simulation, NPC AI, traffic lights, and karma calculations simultaneously caused frame drops on lower-end hardware.</p>
+            <div class="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p class="text-xs text-gray-500"><i class="fas fa-lightbulb text-red-400 mr-2"></i>Solution: Object pooling for NPCs, simplified collision meshes, and coroutine-based signal timers.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 13: Future Enhancements -->
+  <div class="slide" data-slide="12">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-emerald-500/10 text-emerald-400"><i class="fas fa-rocket"></i> Roadmap</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">Future Enhancements</h2>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="glass-card p-7 relative group hover:border-emerald-500/20 transition-all">
+          <div class="absolute top-4 right-4 tag bg-emerald-500/10 text-emerald-400 text-[10px]">Phase 1</div>
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500/10 to-cyan-500/10 flex items-center justify-center mb-5">
+            <i class="fas fa-cloud-sun-rain text-blue-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Weather System</h3>
+          <p class="text-sm text-gray-400 mb-4">Dynamic rain, fog, and night conditions that affect visibility, road grip, and driving difficulty.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-[10px] px-2 py-1 rounded-full bg-blue-500/5 text-blue-400 border border-blue-500/10">Rain</span>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-blue-500/5 text-blue-400 border border-blue-500/10">Fog</span>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-blue-500/5 text-blue-400 border border-blue-500/10">Night</span>
+          </div>
+        </div>
+        <div class="glass-card p-7 relative group hover:border-emerald-500/20 transition-all">
+          <div class="absolute top-4 right-4 tag bg-emerald-500/10 text-emerald-400 text-[10px]">Phase 2</div>
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 flex items-center justify-center mb-5">
+            <i class="fas fa-brain text-purple-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Advanced AI</h3>
+          <p class="text-sm text-gray-400 mb-4">Behavior trees for NPC decision-making — lane changes, overtaking, yielding, and reaction to player actions.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-[10px] px-2 py-1 rounded-full bg-purple-500/5 text-purple-400 border border-purple-500/10">Behavior Trees</span>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-purple-500/5 text-purple-400 border border-purple-500/10">A* Pathfinding</span>
+          </div>
+        </div>
+        <div class="glass-card p-7 relative group hover:border-emerald-500/20 transition-all">
+          <div class="absolute top-4 right-4 tag bg-emerald-500/10 text-emerald-400 text-[10px]">Phase 3</div>
+          <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/10 to-orange-500/10 flex items-center justify-center mb-5">
+            <i class="fas fa-map text-amber-400 text-xl"></i>
+          </div>
+          <h3 class="text-lg font-semibold mb-3">Expanded Content</h3>
+          <p class="text-sm text-gray-400 mb-4">Multiple city maps — highway, rural, and metropolitan. New mission types: delivery, convoy, and emergency response.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="text-[10px] px-2 py-1 rounded-full bg-amber-500/5 text-amber-400 border border-amber-500/10">New Maps</span>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-amber-500/5 text-amber-400 border border-amber-500/10">Missions</span>
+            <span class="text-[10px] px-2 py-1 rounded-full bg-amber-500/5 text-amber-400 border border-amber-500/10">Vehicles</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 14: Conclusion -->
+  <div class="slide" data-slide="13">
+    <div class="slide-content max-w-5xl mx-auto w-full">
+      <div class="flex items-center gap-3 mb-2">
+        <div class="tag bg-green-500/10 text-green-400"><i class="fas fa-flag-checkered"></i> Conclusion</div>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-bold mb-10">What We Learned</h2>
+      <div class="grid md:grid-cols-2 gap-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-5 flex items-center gap-2">
+            <i class="fas fa-graduation-cap text-green-400"></i> Learning Outcomes
+          </h3>
+          <div class="space-y-4">
+            <div class="glass-card p-4 flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-green-400 text-xs font-bold">1</span>
+              </div>
+              <p class="text-sm text-gray-400">Hands-on experience with Unity 3D game development lifecycle — from concept to playable prototype.</p>
+            </div>
+            <div class="glass-card p-4 flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-green-400 text-xs font-bold">2</span>
+              </div>
+              <p class="text-sm text-gray-400">Applied C# programming for real-time game logic, physics simulation, and AI behavior systems.</p>
+            </div>
+            <div class="glass-card p-4 flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-green-400 text-xs font-bold">3</span>
+              </div>
+              <p class="text-sm text-gray-400">Understanding of game design principles — balancing challenge, reward, and player engagement.</p>
+            </div>
+            <div class="glass-card p-4 flex items-start gap-3">
+              <div class="w-6 h-6 rounded-full bg-green-500/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                <span class="text-green-400 text-xs font-bold">4</span>
+              </div>
+              <p class="text-sm text-gray-400">Team collaboration using version control, task division, and iterative development methodology.</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold mb-5 flex items-center gap-2">
+            <i class="fas fa-heart text-red-400"></i> Real-World Impact
+          </h3>
+          <div class="glass-card p-7 border border-green-500/10 bg-green-500/[0.02] h-full flex flex-col justify-center">
+            <p class="text-lg text-gray-300 leading-relaxed mb-6">Traffic Karma proves that games can be more than entertainment — they can be <span class="text-green-400 font-semibold">tools for social change</span>.</p>
+            <p class="text-sm text-gray-400 leading-relaxed mb-6">By making traffic discipline engaging and consequential, we create a safe space for players to understand the real impact of their driving choices before they ever sit behind a real wheel.</p>
+            <div class="flex items-center gap-4">
+              <div class="text-center">
+                <div class="text-2xl font-bold text-green-400 font-['Space_Grotesk']">40%</div>
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Better Retention</div>
+              </div>
+              <div class="w-px h-8 bg-white/10"></div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-green-400 font-['Space_Grotesk']">3x</div>
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Engagement vs Text</div>
+              </div>
+              <div class="w-px h-8 bg-white/10"></div>
+              <div class="text-center">
+                <div class="text-2xl font-bold text-green-400 font-['Space_Grotesk']">100%</div>
+                <div class="text-[10px] text-gray-500 uppercase tracking-wider">Safe Learning</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SLIDE 15: Thank You -->
+  <div class="slide" data-slide="14">
+    <div class="slide-content text-center max-w-3xl mx-auto relative">
+      <svg class="skyline" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="white" d="M0,180 L0,120 L40,120 L40,80 L60,80 L60,100 L80,100 L80,60 L100,60 L100,90 L120,90 L120,70 L140,70 L140,110 L180,110 L180,50 L200,50 L200,30 L210,30 L210,20 L220,20 L220,30 L240,30 L240,50 L260,50 L260,90 L300,90 L300,70 L320,70 L320,40 L340,40 L340,70 L360,70 L360,100 L400,100 L400,60 L420,60 L420,80 L460,80 L460,40 L480,40 L480,20 L500,20 L500,40 L520,40 L520,70 L560,70 L560,90 L600,90 L600,50 L620,50 L620,30 L640,30 L640,10 L660,10 L660,30 L680,30 L680,50 L700,50 L700,80 L740,80 L740,60 L780,60 L780,90 L820,90 L820,40 L840,40 L840,60 L860,60 L860,30 L880,30 L880,60 L900,60 L900,100 L940,100 L940,70 L960,70 L960,50 L980,50 L980,70 L1000,70 L1000,90 L1040,90 L1040,60 L1080,60 L1080,80 L1100,80 L1100,40 L1120,40 L1120,20 L1140,20 L1140,40 L1160,40 L1160,70 L1200,70 L1200,100 L1240,100 L1240,60 L1280,60 L1280,80 L1300,80 L1300,50 L1320,50 L1320,70 L1360,70 L1360,100 L1400,100 L1400,120 L1440,120 L1440,180 Z"/>
+      </svg>
+      <div class="road-lines"></div>
+      <div class="relative z-10">
+        <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-green-500/20 to-green-500/5 flex items-center justify-center mx-auto mb-8 border border-green-500/10">
+          <i class="fas fa-car text-green-400 text-2xl"></i>
+        </div>
+        <h2 class="text-5xl md:text-7xl font-bold mb-4" style="line-height:1.1">
+          Thank <span class="text-green-400">You</span>
+        </h2>
+        <p class="text-xl text-gray-400 mb-10 font-light">Drive safe. Earn good karma.</p>
+        <div class="flex flex-wrap justify-center gap-6 mb-10">
+          <div class="glass-card px-5 py-3 flex items-center gap-3">
+            <i class="fas fa-envelope text-gray-500 text-sm"></i>
+            <span class="text-sm text-gray-400">traffickarma@project.edu</span>
+          </div>
+          <div class="glass-card px-5 py-3 flex items-center gap-3">
+            <i class="fab fa-github text-gray-500 text-sm"></i>
+            <span class="text-sm text-gray-400">github.com/traffic-karma</span>
+          </div>
+        </div>
+        <div class="flex items-center justify-center gap-2 text-gray-600">
+          <i class="fas fa-gamepad text-xs"></i>
+          <p class="text-xs">Built with Unity 3D &middot; C# &middot; Passion</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Navigation controls -->
+<nav class="nav-controls" aria-label="Slide navigation">
+  <button class="nav-btn" id="prevBtn" aria-label="Previous slide" disabled>
+    <i class="fas fa-chevron-left text-sm"></i>
+  </button>
+  <span class="slide-counter" id="slideCounter">1 / 15</span>
+  <button class="nav-btn" id="nextBtn" aria-label="Next slide">
+    <i class="fas fa-chevron-right text-sm"></i>
+  </button>
+</nav>
+
+<script>
+  // Slide navigation system
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  let currentSlide = 0;
+  let isAnimating = false;
+
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const slideCounter = document.getElementById('slideCounter');
+  const progressFill = document.getElementById('progressFill');
+  const dotsContainer = document.getElementById('slideDots');
+
+  // Create dot indicators
+  slides.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = `slide-dot${i === 0 ? ' active' : ''}`;
+    dot.setAttribute('role', 'button');
+    dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+  const dots = document.querySelectorAll('.slide-dot');
+
+  function updateUI() {
+    prevBtn.disabled = currentSlide === 0;
+    nextBtn.disabled = currentSlide === totalSlides - 1;
+    slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+    progressFill.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+    dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlide));
+  }
+
+  function goToSlide(index) {
+    if (isAnimating || index === currentSlide || index < 0 || index >= totalSlides) return;
+    isAnimating = true;
+
+    const direction = index > currentSlide ? 1 : -1;
+    const current = slides[currentSlide];
+    const next = slides[index];
+
+    // Exit current
+    current.classList.remove('active');
+    current.classList.add(direction > 0 ? 'exit-left' : '');
+    if (direction < 0) {
+      current.style.transform = 'translateX(80px) scale(0.97)';
+      current.style.opacity = '0';
+    }
+
+    // Prepare next
+    if (direction > 0) {
+      next.style.transform = 'translateX(80px) scale(0.97)';
+    } else {
+      next.classList.remove('exit-left');
+      next.style.transform = 'translateX(-80px) scale(0.97)';
+    }
+    next.style.opacity = '0';
+
+    // Force reflow
+    void next.offsetWidth;
+
+    // Activate next
+    next.classList.add('active');
+
+    currentSlide = index;
+    updateUI();
+
+    setTimeout(() => {
+      current.classList.remove('exit-left');
+      current.style.transform = '';
+      current.style.opacity = '';
+      isAnimating = false;
+    }, 600);
+  }
+
+  prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+  nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      goToSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      goToSlide(currentSlide - 1);
+    }
+  });
+
+  // Touch/swipe support
+  let touchStartX = 0;
+  let touchStartY = 0;
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const dy = e.changedTouches[0].clientY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) goToSlide(currentSlide + 1);
+      else goToSlide(currentSlide - 1);
+    }
+  }, { passive: true });
+
+  // Animate karma indicator on slide 5
+  let karmaAnimFrame;
+  function animateKarma() {
+    const indicator = document.getElementById('karmaDemo');
+    if (!indicator) return;
+    let t = 0;
+    function tick() {
+      t += 0.008;
+      const pos = 50 + 30 * Math.sin(t);
+      indicator.style.left = pos + '%';
+      karmaAnimFrame = requestAnimationFrame(tick);
+    }
+    tick();
+  }
+  function stopKarmaAnim() {
+    cancelAnimationFrame(karmaAnimFrame);
+  }
+
+  // Traffic light animation on slide 6
+  let trafficInterval;
+  function startTrafficLight() {
+    const light = document.getElementById('mechTrafficLight');
+    if (!light) return;
+    const lights = light.querySelectorAll('.light');
+    let state = 0; // 0=red, 1=yellow, 2=green
+    trafficInterval = setInterval(() => {
+      lights.forEach(l => l.classList.remove('on'));
+      lights[state].classList.add('on');
+      state = (state + 1) % 3;
+    }, 1500);
+  }
+  function stopTrafficLight() {
+    clearInterval(trafficInterval);
+  }
+
+  // Observe active slide for animations
+  const observer = new MutationObserver(() => {
+    const activeSlide = document.querySelector('.slide.active');
+    const idx = parseInt(activeSlide?.dataset.slide);
+
+    // Karma animation
+    if (idx === 4) animateKarma();
+    else stopKarmaAnim();
+
+    // Traffic light
+    if (idx === 5) startTrafficLight();
+    else stopTrafficLight();
+  });
+
+  slides.forEach(slide => {
+    observer.observe(slide, { attributes: true, attributeFilter: ['class'] });
+  });
+
+  // Initial state
+  updateUI();
+</script>
+</body>
+</html>

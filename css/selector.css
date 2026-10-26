@@ -1,0 +1,9 @@
+div > p{
+    color: rgb(221, 11, 11);
+}
+div ~ p{
+    color: rgb(48, 48, 209);
+}
+#div2 + p{
+    color: rgb(6, 136, 145);
+}
